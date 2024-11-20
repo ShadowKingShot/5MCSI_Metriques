@@ -14,35 +14,25 @@ def MaPremiereAPI():
     return render_template('contact.html')
 
 @app.route('/commits/')
-def commits_graph():
+def display_commits():
     # URL de l'API GitHub
     url = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits"
-    response = requests.get(url)
-    if response.status_code != 200:
-        return f"Erreur lors de l'appel à l'API GitHub : {response.status_code}"
-    
-    commits = response.json()
-    if not commits:
-        return "Aucun commit trouvé dans le dépôt spécifié."
-
-    # Extraire les minutes des commits
-    commit_minutes = []
-    for commit in commits:
-        try:
-            commit_date = commit['commit']['author']['date']
-            minute = datetime.strptime(commit_date, '%Y-%m-%dT%H:%M:%SZ').minute
-            commit_minutes.append(minute)
-        except KeyError:
-            continue
+    response = urlopen(url)
+    raw_content = response.read()
+    commits = json.loads(raw_content.decode('utf-8'))
 
     # Compter les commits par minute
-    minute_counts = Counter(commit_minutes)
+    commit_counts = [0] * 60
+    for commit in commits:
+        commit_date = commit['commit']['author']['date']
+        date_object = datetime.strptime(commit_date, '%Y-%m-%dT%H:%M:%SZ')
+        commit_counts[date_object.minute] += 1
 
-    # Convertir les données au format JSON utilisable par Google Charts
-    chart_data = [["Minute", "Commits"]] + [[str(minute), minute_counts.get(minute, 0)] for minute in range(60)]
+    # Générer un tableau des données pour le HTML
+    data = [{'minute': i, 'count': commit_counts[i]} for i in range(60)]
 
-    # Passer les données au template HTML
-    return render_template('commits.html', chart_data=json.dumps(chart_data))
+    # Rendre le template HTML avec les données
+    return render_template('commits.html', data=data)
 
 if __name__ == "__main__":
     app.run(debug=True)
