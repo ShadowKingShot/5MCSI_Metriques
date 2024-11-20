@@ -37,12 +37,6 @@ def mongraphique():
 def mongraphiquehistogramme():
     return render_template("graphique_histogramme.html")
 
-@app.route('/extract-minutes/<date_string>/')
-def extract_minutes(date_string):
-        date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
-        minutes = date_object.minute
-        return jsonify({'minutes': minutes})
-
 @app.route('/commits/')
 def commits_graph():
     # URL de l'API GitHub
@@ -60,35 +54,6 @@ def commits_graph():
     
     minute_counts = {minute: commit_minutes.count(minute) for minute in range(60)}
     
-    # Préparer les données pour le graphique Plotly
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=list(minute_counts.keys()),
-        y=list(minute_counts.values()),
-        marker=dict(color='skyblue'),
-        name='Commits'
-    ))
-    fig.update_layout(
-        title="Commits par Minute",
-        xaxis_title="Minutes",
-        yaxis_title="Nombre de Commits",
-        template="plotly_white"
-    )
-
-    # Générer le graphique HTML
-    graph_html = fig.to_html(full_html=False)
-
-    return render_template_string('''
-        <html>
-            <head>
-                <title>Commits Graph</title>
-            </head>
-            <body>
-                <h1>Commits par Minute</h1>
-                {{ graph_html|safe }}
-            </body>
-        </html>
-    ''', graph_html=graph_html)
     
 if __name__ == "__main__":
   app.run(debug=True)
