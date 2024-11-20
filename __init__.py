@@ -6,6 +6,7 @@ from urllib.request import urlopen
 import sqlite3
 import base64
 from io import BytesIO
+import matplotlib.pyplot
                                                                                                                                        
 app = Flask(__name__)                                                                                                                  
                                                                                                                                        
