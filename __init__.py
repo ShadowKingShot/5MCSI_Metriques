@@ -1,9 +1,8 @@
 from flask import Flask, render_template, jsonify
 from datetime import datetime
+import requests
 import json
 from collections import Counter
-from urllib.request import urlopen
-import sqlite3
 
 app = Flask(__name__)
 
@@ -38,17 +37,13 @@ def commits_graph():
             continue
 
     # Compter les commits par minute
-    chart_data = [["Minute", "Commits"]] + [[str(minute), minute_counts.get(minute, 0)] for minute in range(60)]
+    minute_counts = Counter(commit_minutes)
 
     # Convertir les données au format JSON utilisable par Google Charts
-    chart_data = [["Minute", "Commits"]]
-    for minute in range(60):
-        chart_data.append([str(minute), minute_counts.get(minute, 0)])
+    chart_data = [["Minute", "Commits"]] + [[str(minute), minute_counts.get(minute, 0)] for minute in range(60)]
 
     # Passer les données au template HTML
     return render_template('commits.html', chart_data=json.dumps(chart_data))
 
 if __name__ == "__main__":
     app.run(debug=True)
-                                                                                                                                    
-
