@@ -1,42 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Histogramme des Commits</title>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-        google.charts.load("current", {packages:["corechart"]});
-        google.charts.setOnLoadCallback(drawChart);
-
-        function drawChart() {
-            // Données injectées par Flask via le format JSON
-            var data = google.visualization.arrayToDataTable({{ chart_data|safe }});
-
-            // Options pour personnaliser le graphique
-            var options = {
-                title: 'Nombre de commits par minute',
-                legend: { position: 'none' },
-                hAxis: {
-                    title: 'Minutes',
-                    minValue: 0,
-                    maxValue: 59
-                },
-                vAxis: {
-                    title: 'Nombre de commits',
-                    minValue: 0
-                },
-                histogram: { bucketSize: 1 }
-            };
-
-            // Création et dessin de l'histogramme
-            var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-            chart.draw(data, options);
+    <title>Commits par Minute</title>
+    <style>
+        .bar {
+            width: 10px;
+            background-color: blue;
+            display: inline-block;
+            margin: 1px;
         }
-    </script>
+    </style>
 </head>
 <body>
-    <h1 style="text-align: center;">Histogramme des commits par minute</h1>
-    <div id="chart_div" style="width: 900px; height: 500px; margin: auto;"></div>
+    <h1>Nombre de commits par minute</h1>
+    <div style="display: flex; align-items: flex-end;">
+        {% for item in data %}
+            <div class="bar" style="height: {{ item.count * 10 }}px;" title="Minute {{ item.minute }} : {{ item.count }} commits"></div>
+        {% endfor %}
+    </div>
 </body>
 </html>
