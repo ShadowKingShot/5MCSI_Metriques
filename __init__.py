@@ -4,6 +4,8 @@ from flask import json
 from datetime import datetime
 from urllib.request import urlopen
 import sqlite3
+import base64
+from io import BytesIO
                                                                                                                                        
 app = Flask(__name__)                                                                                                                  
                                                                                                                                        
@@ -76,5 +78,8 @@ def commits_graph():
     # Conversion de l'image en base64
     graph_base64 = base64.b64encode(image_png).decode('utf-8')
     plt.close()
+
+    return render_template("commits_count.html")
+    
 if __name__ == "__main__":
   app.run(debug=True)
