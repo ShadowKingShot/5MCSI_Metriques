@@ -54,6 +54,13 @@ def commits_graph():
     
     minute_counts = {minute: commit_minutes.count(minute) for minute in range(60)}
     
-    
+     # Convertir les données au format JSON utilisable par Google Charts
+    chart_data = [["Minute", "Commits"]]
+    for minute in range(60):
+        chart_data.append([str(minute), commit_counts.get(minute, 0)])
+
+    # Passer les données au template HTML
+    return render_template('commits.html', chart_data=json.dumps(chart_data))
+  
 if __name__ == "__main__":
   app.run(debug=True)
