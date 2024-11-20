@@ -37,19 +37,22 @@ def mongraphiquehistogramme():
 
 @app.route('/commits/')
 def commits_graph():
-    # URL de l'API GitHub
     url = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits"
-    
-    # Récupération des données depuis l'API
     response = requests.get(url)
     commits = response.json()
     
     commit_minutes = []
     for commit in commits:
         commit_date = commit['commit']['author']['date']
-        minute = datetime.strptime(commit_date, '%Y-%m-%dT%H:%M:%SZ').minute
-        commit_minutes.append(minute)
-    
+        # Utiliser extract_minutes directement
+        minutes_response = extract_minutes(commit_date)
+        if minutes_response.status_code == 200:
+            minutes = minutes_response.get_json()['minutes']
+            commit_minutes.append(minutes)
+        else:
+            continue
+
+    # Compter les commits par minute
     minute_counts = {minute: commit_minutes.count(minute) for minute in range(60)}
     
      # Convertir les données au format JSON utilisable par Google Charts
