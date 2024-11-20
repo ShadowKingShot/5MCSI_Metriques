@@ -6,7 +6,7 @@ from urllib.request import urlopen
 import sqlite3
 import base64
 from io import BytesIO
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
                                                                                                                                        
 app = Flask(__name__)                                                                                                                  
                                                                                                                                        
@@ -61,24 +61,23 @@ def commits_graph():
     
     minute_counts = {minute: commit_minutes.count(minute) for minute in range(60)}
     
-    # Création du graphique
-    plt.figure(figsize=(10, 6))
-    plt.bar(minute_counts.keys(), minute_counts.values())
-    plt.title("Commits par Minute")
-    plt.xlabel("Minutes")
-    plt.ylabel("Nombre de Commits")
-    plt.grid(axis='y')
+    # Préparer les données pour le graphique Plotly
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=list(minute_counts.keys()),
+        y=list(minute_counts.values()),
+        marker=dict(color='skyblue'),
+        name='Commits'
+    ))
+    fig.update_layout(
+        title="Commits par Minute",
+        xaxis_title="Minutes",
+        yaxis_title="Nombre de Commits",
+        template="plotly_white"
+    )
 
-    # Sauvegarde du graphique dans un buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    buffer.close()
-    
-    # Conversion de l'image en base64
-    graph_base64 = base64.b64encode(image_png).decode('utf-8')
-    plt.close()
+    # Générer le graphique HTML
+    graph_html = fig.to_html(full_html=False)
 
     return render_template_string('''
         <html>
@@ -87,10 +86,10 @@ def commits_graph():
             </head>
             <body>
                 <h1>Commits par Minute</h1>
-                <img src="data:image/png;base64,{{ graph }}" alt="Graphique des commits"/>
+                {{ graph_html|safe }}
             </body>
         </html>
-    ''', graph=graph_base64)
+    ''', graph_html=graph_html)
     
 if __name__ == "__main__":
   app.run(debug=True)
