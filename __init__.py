@@ -2,10 +2,8 @@ from flask import Flask, render_template_string, render_template, jsonify
 from flask import render_template
 from flask import json
 from datetime import datetime
-from urllib.request import urlopen
-import sqlite3
-import base64
-from io import BytesIO
+import requests
+
                                                                                                                                        
 app = Flask(__name__)                                                                                                                  
                                                                                                                                        
@@ -57,7 +55,7 @@ def commits_graph():
      # Convertir les données au format JSON utilisable par Google Charts
     chart_data = [["Minute", "Commits"]]
     for minute in range(60):
-        chart_data.append([str(minute), commit_counts.get(minute, 0)])
+        chart_data.append([str(minute), minute_counts.get(minute, 0)])
 
     # Passer les données au template HTML
     return render_template('commits.html', chart_data=json.dumps(chart_data))
