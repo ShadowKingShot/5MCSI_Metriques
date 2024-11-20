@@ -6,7 +6,6 @@ from urllib.request import urlopen
 import sqlite3
 import base64
 from io import BytesIO
-import plotly.graph_objects as go
                                                                                                                                        
 app = Flask(__name__)                                                                                                                  
                                                                                                                                        
