@@ -34,6 +34,47 @@ def mongraphique():
 @app.route("/histogramme/")
 def mongraphiquehistogramme():
     return render_template("graphique_histogramme.html")
-  
+
+@app.route('/extract-minutes/<date_string>')
+def extract_minutes(date_string):
+        date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
+        minutes = date_object.minute
+        return jsonify({'minutes': minutes})
+
+@app.route('/commits/')
+def commits_graph():
+    # URL de l'API GitHub
+    url = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits"
+    
+    # Récupération des données depuis l'API
+    response = requests.get(url)
+    commits = response.json()
+    
+    commit_minutes = []
+    for commit in commits:
+        commit_date = commit['commit']['author']['date']
+        minute = datetime.strptime(commit_date, '%Y-%m-%dT%H:%M:%SZ').minute
+        commit_minutes.append(minute)
+    
+    minute_counts = {minute: commit_minutes.count(minute) for minute in range(60)}
+    
+    # Création du graphique
+    plt.figure(figsize=(10, 6))
+    plt.bar(minute_counts.keys(), minute_counts.values())
+    plt.title("Commits par Minute")
+    plt.xlabel("Minutes")
+    plt.ylabel("Nombre de Commits")
+    plt.grid(axis='y')
+
+    # Sauvegarde du graphique dans un buffer
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+    
+    # Conversion de l'image en base64
+    graph_base64 = base64.b64encode(image_png).decode('utf-8')
+    plt.close()
 if __name__ == "__main__":
   app.run(debug=True)
