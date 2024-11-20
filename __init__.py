@@ -79,7 +79,17 @@ def commits_graph():
     graph_base64 = base64.b64encode(image_png).decode('utf-8')
     plt.close()
 
-    return render_template("commits_count.html")
+    return render_template_string('''
+        <html>
+            <head>
+                <title>Commits Graph</title>
+            </head>
+            <body>
+                <h1>Commits par Minute</h1>
+                <img src="data:image/png;base64,{{ graph }}" alt="Graphique des commits"/>
+            </body>
+        </html>
+    ''', graph=graph_base64)
     
 if __name__ == "__main__":
   app.run(debug=True)
